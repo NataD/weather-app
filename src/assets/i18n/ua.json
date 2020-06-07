@@ -1,0 +1,24 @@
+{
+  "showMap": "Показати на карті",
+  "labels": {
+    "feelsLike": "Відчуває, як",
+    "clouds": "Хмарність",
+    "precipitation": "Опади",
+    "wind": "Вітер",
+    "visibility": "Видимість",
+    "humidity": "Вологість"
+  },
+  "forecast": "3-денний прогноз",
+  "findPlaceholder": "Впишіть місце",
+  "tempUnit": {
+    "label": "Одиниця температури",
+    "celsius": "Цельсій",
+    "fahrenheit": "Фаренгейт"
+  },
+  "language": {
+    "label": "Мова / Language",
+    "en": "Англійська",
+    "ua": "Українська"
+  },
+  "changeBackgroundBtn": "Змінити тло аплікації"
+}

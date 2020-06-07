@@ -1,0 +1,24 @@
+{
+  "showMap": "Show on map",
+  "labels": {
+    "feelsLike": "Feels like",
+    "clouds": "Clouds",
+    "precipitation": "Precipitation",
+    "wind": "Wind",
+    "visibility": "Visibility",
+    "humidity": "Huminidity"
+  },
+  "forecast": "3 day outlook",
+  "findPlaceholder": "Find place",
+  "tempUnit": {
+    "label": "Temperature unit",
+    "celsius": "Celsius",
+    "fahrenheit": "Fahrenheit"
+  },
+  "language": {
+    "label": "Language / Мова",
+    "en": "English",
+    "ua": "Українська"
+  },
+  "changeBackgroundBtn": "Show random backgound"
+}

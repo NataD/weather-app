@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="./assets/styles/style.css">
+    <script type="module" src="./scripts/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""></script>
+  </head>
+  <body>
+    <div class="content">
+    <section class="sidebar">
+      <div class="search-container">
+        <form class="search-form">
+          <button type="button" class="btn-voice-control voice-recognition"></button>
+          <input type="text" placeholder="Find place" class="search-input" autofocus>
+          <button type="submit" class="btn-search"></button>
+          <button type="button" class="btn-close"></button>
+          <span class="msg"></span>
+        </form>
+      </div>
+
+      <div class="multiple-cities-section">
+        <ul class="city-options">
+        </ul>
+      </div>
+
+      <div class="temperature-selection settings-container">
+        <h4 class="form-title" data-i18n="tempUnit.label">Temperature unit</h4>
+        <form name="temperature-form" class="temperature-form settings-form">
+          <div class="form-control">
+            <input type="radio" id="celsius" name="temperature" value="celsius" checked/>
+            <label for="celsius" data-i18n="tempUnit.celsius">Celsius</label>
+          </div>
+
+          <div class="form-control">
+            <input type="radio" id="fahrenheit" name="temperature" value="fahrenheit"/>
+            <label for="fahrenheit" data-i18n="tempUnit.fahrenheit">Fahrenheit</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="language-selection settings-container">
+        <h4 class="form-title" data-i18n="language.label">Language / Мова</h4>
+        <form name="language-form" class="language-form settings-form">
+          <div class="form-control">
+            <input type="radio" id="en" name="language" value="en"/>
+            <label for="en" data-i18n="language.en">English</label>
+          </div>
+
+          <div class="form-control">
+            <input type="radio" id="ua" name="language" value="ua"/>
+            <label for="ua" data-i18n="language.ua">Українська</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="image-btn-container">
+        <button type="button" name="button" class="btn-change-image"
+                data-i18n="changeBackgroundBtn">
+          Show random background
+        </button>
+      </div>
+
+    </section>
+    <div class="main">
+      <div class="main-content">
+        <div class="menu">
+          <button type="button" name="button" class="btn-menu"></button>
+        </div>
+        <div class="content">
+          <div class="location-disabled-content">
+            <h1>Hello</h1>
+            <p>Please allow the app to know your location.</p>
+            <p>It will be easier for you to get the most accurate weather.</p>
+            <p>If you wish, you can search for the place in the sidebaron the left</p>
+          </div>
+
+          <div class="weather-content">
+            <div class="weather-header">
+              <h1 class='weather-city'></h1>
+              <button type="button" name="button" class="btn-show-map"
+                      data-i18n="showMap">
+                Show map
+              </button>
+              <div id="mapid">
+                <div class="coordinates-details">
+
+                </div>
+              </div>
+
+              <p class="date">Sat, 6 June | 09.31</p>
+            </div>
+            <div class="current-weather">
+            </div>
+
+            <div class="weather-forecast">
+              <h4 class=weather-forecast-title data-i18n="forecast">3 day outlook</h4>
+              <div class="forecast-list">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+   </div>
+  </body>
+</html>
