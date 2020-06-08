@@ -1,17 +1,20 @@
+import ImageGenerator from './imageGenerator.js';
+
 export default class {
   constructor() {
     this.config = {};
     this.currentTemperature = 0;
   }
 
-  getWeather(url, container, msgContainer) {
+  getWeather(url, container, msgContainer, loaderContainer) {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
         this.config = [...data.data];
         this.currentTemperature = data.data[0].temp;
-        console.log('CONFIG in weather API', this.config);
-
+        const imageGenerator = new ImageGenerator();
+        imageGenerator.getKeys(this.config[0]);
+        imageGenerator.getImage(document.querySelector('.main'));
         console.log('weather data', data);
         const icon = `https://www.weatherbit.io/static/img/icons/${
           data.data[0].weather.icon}.png`;
@@ -61,6 +64,7 @@ export default class {
           </div>
         `;
         container.innerHTML = markup;
+        loaderContainer.style.display = 'none';
       })
       .catch((error) => {
         console.log('ERROR IN getWeather', error);
@@ -79,7 +83,9 @@ export default class {
           const forecastItem = document.createElement('div');
           forecastItem.classList.add('forecast-item');
           // toDo add language insteat od default
-          const day = new Date(item.datetime).toLocaleString('default', { weekday: 'short', day: 'numeric', month: 'short' });
+          const lang = localStorage.getItem('language') === 'en' ? 'en-GB' : 'uk-UA';
+          console.log('lang in weatherGen', lang);
+          const day = new Date(item.datetime).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short' });
           const markup = `
             <p class="item-date">${day}</p>
             <div class="item-weather">

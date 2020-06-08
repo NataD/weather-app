@@ -20,6 +20,8 @@ window.onload = () => {
   const cityName = document.querySelector('.weather-city');
   const btnShowMap = document.querySelector('.btn-show-map');
   const btnMenu = document.querySelector('.btn-menu');
+  const dateContainer = document.querySelector('.date');
+  const loaderContainer = document.querySelector('.loader-container');
 
   const imageGenerator = new ImageGenerator();
   const weatherGenerator = new WeatherGenerator();
@@ -29,6 +31,33 @@ window.onload = () => {
   function setLanguage(language) {
     localStorage.setItem('language', language);
   }
+
+  function setWeatherUnit(unit) {
+    localStorage.setItem('unit', unit);
+  }
+
+  function getWeatherUnit() {
+    let unit = 'c';
+    if (!localStorage.getItem('unit')) {
+      setWeatherUnit(unit);
+      document.getElementById('celsius').checked = true;
+      document.getElementById('fahrenheit').checked = false;
+    } else {
+      unit = localStorage.getItem('unit');
+
+      if (unit === 'c') {
+        document.getElementById('celsius').checked = true;
+        document.getElementById('fahrenheit').checked = false;
+      }
+      if (unit === 'f') {
+        document.getElementById('celsius').checked = false;
+        document.getElementById('fahrenheit').checked = true;
+      }
+    }
+    return unit;
+  }
+
+  getWeatherUnit();
 
   function getLanguage() {
     let language = 'en';
@@ -60,18 +89,28 @@ window.onload = () => {
   translator.load(currentLanguage);
 
   function switchToCUnits() {
+    if (localStorage.getItem('unit') === 'c') {
+      return;
+    }
+
     const currentTempContainer = document.querySelector('.temp');
     const tempUnit = document.querySelector('.temp-unit');
     const forecastTemp = document.querySelectorAll('.forecast-temp');
-    currentTempContainer.innerHTML = `${Math.round(weatherGenerator.currentTemperature)}`;
+    const cTemp = currentTempContainer.innerHTML;
+    currentTempContainer.innerHTML = `${Math.round((5/9) * (cTemp - 32))}`;
     Array.from(forecastTemp).map((el) => {
       const fTemp = el.innerHTML;
-      return el.innerHTML = `${Math.round((5/9) * (el.innerHTML - 32))}`;
+      return el.innerHTML = `${Math.round((5/9) * (fTemp - 32))}`;
     });
     tempUnit.innerHTML = '°C';
+    setWeatherUnit('c');
   }
 
   function switchToFUnits() {
+    if (localStorage.getItem('unit') === 'f') {
+      return;
+    }
+
     const currentTempContainer = document.querySelector('.temp');
     const tempUnit = document.querySelector('.temp-unit');
     const forecastTemp = document.querySelectorAll('.forecast-temp');
@@ -83,14 +122,19 @@ window.onload = () => {
       return el.innerHTML = `${Math.round((el.innerHTML * 9) / 5 + 32)}`;
     });
     tempUnit.innerHTML = '°F';
+    setWeatherUnit('f');
   }
 
   function getCityWeather(geolocation) {
-    const url = `https://api.weatherbit.io/v2.0/current?lat=${geolocation.lat}&lon=${geolocation.lng}&key=${apiKey}&units=[M, I]`;
-    const forecastUrl = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${geolocation.lat}&lon=${geolocation.lng}&days=3&key=${apiKey}`;
+    const lang = getLanguage() === 'ua' ? 'uk' : 'en';
+    const unit = getWeatherUnit() === 'f' ? 'I' : 'M';
+    console.log('-=-=-=-=-==-', lang, unit);
+    const url = `https://api.weatherbit.io/v2.0/current?lat=${geolocation.lat}&lon=${geolocation.lng}&key=${apiKey}&units=${unit}&lang=${lang}`;
+    const forecastUrl = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${geolocation.lat}&lon=${geolocation.lng}&units=${unit}&lang=${lang}&days=3&key=${apiKey}`;
 
-    weatherGenerator.getWeather(url, list, msg);
+    weatherGenerator.getWeather(url, list, msg, loaderContainer);
     weatherGenerator.getForecast(forecastUrl, forecastList, msg);
+    imageGenerator.getKeys(weatherGenerator.config[0]);
   };
 
   function getCity(url) {
@@ -112,6 +156,8 @@ window.onload = () => {
         if (filtered.length === 1) {
           const geolocation = filtered[0].geometry;
           getCityWeather(geolocation);
+          getCityName(geolocation);
+          clearSideMenu();
         } else if (!filtered.length) {
           msg.textContent = 'Please search for a valid city 😩';
         } else {
@@ -124,7 +170,9 @@ window.onload = () => {
               </h2>
             `;
             li.addEventListener('click', function() {
+              clearSideMenu();
               getCityWeather(item.geometry);
+              getCityName(item.geometry);
             }, false);
             li.innerHTML = markup;
             cityOptionsList.appendChild(li);
@@ -193,7 +241,19 @@ window.onload = () => {
 
   btnShowMap.addEventListener('click', function() {
     document.querySelector('#mapid').classList.toggle('shown');
-    btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? `Hide map` : `Show map`;
+
+
+    if (!localStorage.getItem('language')) {
+      btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? `Hide map` : `Show map`;
+    } else {
+      let language = localStorage.getItem('language');
+      if (language === 'ua') {
+        btnShowMap.innerHTML = btnShowMap.innerHTML === 'Показати на карті' ? `Сховати карту` : `Показати на карті`;
+      }
+      if (language === 'en') {
+        btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? `Hide map` : `Show map`;
+      }
+    }
   }, false);
 
   btnMenu.addEventListener('click', function() {
@@ -254,30 +314,14 @@ window.onload = () => {
     map.setZoom(9);
     map.panTo(new L.LatLng(pos.lat, pos.lng));
     // get city name
-    const lang = getLanguage() === 'ua' ? 'uk' : 'en';
-    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lng}&localityLanguage=${lang}`;
-    const locationDetails = getCityName(url);
+    getCityName(pos);
     const coordinatesMarkup = `
       <span class="coordinates">Latitude: ${pos.lat}</span>
+      <span class="separator">|</span>
       <span class="coordinates">Longitude: ${pos.lng}</span>
     `;
-
-    const latitude = document.createElement('span');
-    latitude.classList.add("coordinates");
-    latitude.innerHTML = `Latitude: ${pos.lat}`;
-    const longitude = document.createElement('span');
-    longitude.classList.add('coordinates');
-    longitude.innerHTML = `Longitude: ${pos.lng}`;
-    // coordinatesContainer.innerHtml = coordinatesMarkup;
-    coordinatesContainer.appendChild(latitude);
-    coordinatesContainer.appendChild(longitude);
-
-    const weatherPosition = pos;
-    Object.keys(weatherPosition).forEach(function (key) {
-      return weatherPosition[key] = weatherPosition[key].toFixed(2)
-    });
-    console.log('edited position', weatherPosition);
-    getCityWeather(weatherPosition);
+    coordinatesContainer.innerHTML = coordinatesMarkup;
+    getCityWeather(pos);
   };
 
   function getLocationError(error) {
@@ -287,7 +331,10 @@ window.onload = () => {
     //  renderMap(0, 0);
   }
 
-  function getCityName(url) {
+  function getCityName(location) {
+    const lang = getLanguage() === 'ua' ? 'uk' : 'en';
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.lat}&longitude=${location.lng}&localityLanguage=${lang}`;
+
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -300,12 +347,22 @@ window.onload = () => {
       });
   }
 
+  function getDate() {
+    const day = new Date().toLocaleString('default', { weekday: 'short', day: 'numeric', month: 'short' });
+    dateContainer.innerHTML = `${day}`;
+  }
+
+  const voiceRecognitionBtn = document.querySelector('.voice-recognition');
+  voiceRecognitionBtn.addEventListener('click', function () {
+    getVoiceCommand();
+  }, false);
+
   function getVoiceCommand() {
     if ('SpeechRecognition' || webkitSpeechRecognition) {
       console.log('Speech recognition supported 😊');
-      const SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
-      // const SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
-      // const SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+      var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+      var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+      var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
       // var recognition = new window.webkitSpeechRecognition();
       const recognition = new SpeechRecognition();
       // This will run when the speech recognition service returns a result
@@ -337,10 +394,15 @@ window.onload = () => {
     }
   }
 
-  const voiceRecognitionBtn = document.querySelector('.voice-recognition');
-  voiceRecognitionBtn.addEventListener('click', function () {
-    getVoiceCommand();
-  }, false);
+  function clearSideMenu() {
+    btnMenu.classList.remove('open');
+    document.querySelector('.sidebar').classList.remove('opened');
+    document.querySelector('.main').classList.remove('minimized');
+    input.value = '';
+    cityOptionsList.innerHTML = '';
+    btnSearch.classList.remove('active');
+    btnClose.classList.remove('visible');
+  }
 
   msg.textContent = '';
   form.reset();

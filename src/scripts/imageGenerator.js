@@ -8,30 +8,37 @@ export default class {
   }
 
   getKeys(config) {
+    if (config === undefined) {
+      return;
+    }
+    console.log('in config', config);
+    let k = [];
     if (config.pod === 'd') {
-      this.keys.push('day');
+      k.push('day');
     }
 
     if (config.pod === 'n') {
-      this.keys.push('night');
+      k.push('night');
     }
 
     if (config.clouds >= 50) {
-      this.keys.push('clouds');
+      k.push('clouds');
     }
 
     if (config.clouds <= 50) {
-      this.keys.push('sun');
+      k.push('sun');
     }
 
     if (config.snow > 0) {
-      this.keys.push('snow');
+      k.push('snow');
     }
 
     if (config.precip > 0) {
-      this.keys.push('rain');
+      k.push('rain');
     }
     // return this;
+    this.keys = k;
+    console.log('kkkk', k);
     return this.keys;
   }
 
