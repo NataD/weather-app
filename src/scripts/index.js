@@ -83,6 +83,7 @@ window.onload = () => {
   function switchLanguage(language) {
     setLanguage(language);
     translator.load(language);
+    translateWeatherLabels(language);
   }
 
   const currentLanguage = getLanguage();
@@ -402,6 +403,21 @@ window.onload = () => {
     cityOptionsList.innerHTML = '';
     btnSearch.classList.remove('active');
     btnClose.classList.remove('visible');
+  }
+
+  function translateWeatherLabels(lang) {
+    const feelsLikeLabel = lang === 'en' ? 'Feels like' : 'Відчувається як';
+    const cloudsLabel = lang === 'en' ? 'Clouds': 'Хмарність';
+    const precipLabel = lang === 'en' ? 'Precipitation': 'Опади';
+    const windLabel = lang === 'en' ? 'Wind': 'Вітер';
+    const visibilityLabel = lang === 'en' ? 'Visibility': 'Видимість';
+    const humidityLabel = lang === 'en' ? 'Humidity': 'Вологість';
+    document.querySelector('.label-app-temp').innerHTML = feelsLikeLabel;
+    document.querySelector('.label-clouds').innerHTML = cloudsLabel;
+    document.querySelector('.label-precip').innerHTML = precipLabel;
+    document.querySelector('.label-wind').innerHTML = windLabel;
+    document.querySelector('.label-visibility').innerHTML = visibilityLabel;
+    document.querySelector('.label-humidity').innerHTML = humidityLabel;
   }
 
   msg.textContent = '';

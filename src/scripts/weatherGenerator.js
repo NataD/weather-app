@@ -15,6 +15,13 @@ export default class {
         const imageGenerator = new ImageGenerator();
         imageGenerator.getKeys(this.config[0]);
         imageGenerator.getImage(document.querySelector('.main'));
+        const lang = localStorage.getItem('language');
+        const feelsLikeLabel = lang === 'en' ? 'Feels like' : 'Відчувається як';
+        const cloudsLabel = lang === 'en' ? 'Clouds': 'Хмарність';
+        const precipLabel = lang === 'en' ? 'Precipitation': 'Опади';
+        const windLabel = lang === 'en' ? 'Wind': 'Вітер';
+        const visibilityLabel = lang === 'en' ? 'Visibility': 'Видимість';
+        const humidityLabel = lang === 'en' ? 'Humidity': 'Вологість';
         console.log('weather data', data);
         const icon = `https://www.weatherbit.io/static/img/icons/${
           data.data[0].weather.icon}.png`;
@@ -35,29 +42,29 @@ export default class {
             </div>
             <div class="details">
               <div class="item">
-                <p class="label" data-i18n="labels.feelsLike">Feels like</p>
+                <p class="label label-app-temp" data-i18n="labels.feelsLike">${feelsLikeLabel}</p>
                 <p class="value">${data.data[0].app_temp}</p>
               </div>
               <div class="item">
-                <p class="label" data-i18n="labels.clouds">Clouds</p>
+                <p class="label label-clouds" data-i18n="labels.clouds">${cloudsLabel}</p>
                 <p class="value">${data.data[0].clouds}</p>
               </div>
               <div class="item">
-                <p class="label" data-i18n="labels.precipitation">Precipitation</p>
+                <p class="label label-precip" data-i18n="labels.precipitation">${precipLabel}</p>
                 <p class="value">${data.data[0].precip}</p>
               </div>
             </div>
             <div class="details">
               <div class="item">
-                <p class="label" data-i18n="labels.wind">Wind</p>
+                <p class="label label-wind" data-i18n="labels.wind">${windLabel}</p>
                 <p class="value">${data.data[0].wind_spd}</p>
               </div>
               <div class="item">
-                <p class="label" data-i18n="labels.visibility">Visibility</p>
+                <p class="label label-visibility" data-i18n="labels.visibility">${visibilityLabel}</p>
                 <p class="value">${data.data[0].vis}</p>
               </div>
               <div class="item">
-                <p class="label" data-i18n="labels.humidity">Humidity</p>
+                <p class="label label-humidity" data-i18n="labels.humidity">${humidityLabel}</p>
                 <p class="value">${data.data[0].rh}</p>
               </div>
             </div>
