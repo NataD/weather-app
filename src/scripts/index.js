@@ -22,10 +22,17 @@ window.onload = () => {
   const btnMenu = document.querySelector('.btn-menu');
   const dateContainer = document.querySelector('.date');
   const loaderContainer = document.querySelector('.loader-container');
+  const weatherContentContainer = document.querySelector('.weather-content');
 
   const imageGenerator = new ImageGenerator();
   const weatherGenerator = new WeatherGenerator();
   const translator = new Translator();
+
+  document.querySelector('.btn-close-sm').addEventListener('click', function() {
+    btnMenu.classList.toggle('open');
+    document.querySelector('.sidebar').classList.toggle('opened');
+    document.querySelector('.main').classList.toggle('minimized');
+  }, false);
 
   // translations
   function setLanguage(language) {
@@ -283,10 +290,12 @@ window.onload = () => {
       navigator.geolocation.getCurrentPosition(getUserLocation, getLocationError);
       console.log('geolocation', navigator.geolocation);
       locationErrorContainer.style.display = 'none';
+      weatherContentContainer.style.display = 'block';
     } else {
     // Browser doesn't support Geolocation
     //  handleLocationError(false, infoWindow, map.getCenter());
       locationErrorContainer.style.display = 'block';
+      loaderContainer.style.display = 'none';
       console.log('location error');
     }
   };
@@ -329,6 +338,8 @@ window.onload = () => {
     //  handleLocationError(true, infoWindow, map.getCenter());
     console.log('location error', error);
     locationErrorContainer.style.display = 'block';
+    loaderContainer.style.display = 'none';
+    weatherContentContainer.style.display = 'none';
     //  renderMap(0, 0);
   }
 
