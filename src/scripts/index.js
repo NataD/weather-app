@@ -23,10 +23,12 @@ window.onload = () => {
   const dateContainer = document.querySelector('.date');
   const loaderContainer = document.querySelector('.loader-container');
   const weatherContentContainer = document.querySelector('.weather-content');
-
   const imageGenerator = new ImageGenerator();
   const weatherGenerator = new WeatherGenerator();
   const translator = new Translator();
+
+  setDateTime();
+  setInterval(setDateTime, 1000 * 60);
 
   document.querySelector('.btn-close-sm').addEventListener('click', function() {
     btnMenu.classList.toggle('open');
@@ -429,6 +431,13 @@ window.onload = () => {
     document.querySelector('.label-wind').innerHTML = windLabel;
     document.querySelector('.label-visibility').innerHTML = visibilityLabel;
     document.querySelector('.label-humidity').innerHTML = humidityLabel;
+  }
+
+  function setDateTime() {
+    const lang = localStorage.getItem('language') === 'en' ? 'en-GB' : 'uk-UA';
+    const date = new Date().toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short' });
+    const time = new Date().toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+    dateContainer.innerHTML = `${date} | ${time}`;
   }
 
   msg.textContent = '';
