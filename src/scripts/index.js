@@ -27,19 +27,89 @@ window.onload = () => {
   const weatherGenerator = new WeatherGenerator();
   const translator = new Translator();
 
+  function setDateTime() {
+    const lang = localStorage.getItem('language') === 'en' ? 'en-GB' : 'uk-UA';
+    const date = new Date().toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short' });
+    const time = new Date().toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+    dateContainer.innerHTML = `${date} | ${time}`;
+  }
+
+  function clearSideMenu() {
+    btnMenu.classList.remove('open');
+    document.querySelector('.sidebar').classList.remove('opened');
+    document.querySelector('.main').classList.remove('minimized');
+    input.value = '';
+    cityOptionsList.innerHTML = '';
+    btnSearch.classList.remove('active');
+    btnClose.classList.remove('visible');
+  }
+
+  function translateWeatherLabels(lang) {
+    const feelsLikeLabel = lang === 'en' ? 'Feels like' : 'Відчувається як';
+    const cloudsLabel = lang === 'en' ? 'Clouds' : 'Хмарність';
+    const precipLabel = lang === 'en' ? 'Precipitation' : 'Опади';
+    const windLabel = lang === 'en' ? 'Wind' : 'Вітер';
+    const visibilityLabel = lang === 'en' ? 'Visibility' : 'Видимість';
+    const humidityLabel = lang === 'en' ? 'Humidity' : 'Вологість';
+    document.querySelector('.label-app-temp').innerHTML = feelsLikeLabel;
+    document.querySelector('.label-clouds').innerHTML = cloudsLabel;
+    document.querySelector('.label-precip').innerHTML = precipLabel;
+    document.querySelector('.label-wind').innerHTML = windLabel;
+    document.querySelector('.label-visibility').innerHTML = visibilityLabel;
+    document.querySelector('.label-humidity').innerHTML = humidityLabel;
+  }
+
+  function setLanguage(language) {
+    localStorage.setItem('language', language);
+  }
+
+  function getLanguage() {
+    let language = 'en';
+    if (!localStorage.getItem('language')) {
+      setLanguage(language);
+      document.getElementById('en').checked = true;
+      document.getElementById('ua').checked = false;
+    } else {
+      language = localStorage.getItem('language');
+
+      if (language === 'en') {
+        document.getElementById('en').checked = true;
+        document.getElementById('ua').checked = false;
+      }
+      if (language === 'ua') {
+        document.getElementById('en').checked = false;
+        document.getElementById('ua').checked = true;
+      }
+    }
+    return language;
+  }
+
+  function getCityName(location) {
+    const lang = getLanguage() === 'ua' ? 'uk' : 'en';
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.lat}&longitude=${location.lng}&localityLanguage=${lang}`;
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const city = data.city.length ? data.city : data.localityInfo.administrative[2].name;
+        //  return data;
+        cityName.innerHTML = `${city}, ${data.countryName}`;
+      })
+      .catch((error) => {
+        console.log('====', error);
+        msg.textContent = 'Please search for a valid city 😩';
+      });
+  }
+
   setDateTime();
   setInterval(setDateTime, 1000 * 60);
 
-  document.querySelector('.btn-close-sm').addEventListener('click', function() {
+  document.querySelector('.btn-close-sm').addEventListener('click', () => {
     btnMenu.classList.toggle('open');
     document.querySelector('.sidebar').classList.toggle('opened');
     document.querySelector('.main').classList.toggle('minimized');
   }, false);
-
-  // translations
-  function setLanguage(language) {
-    localStorage.setItem('language', language);
-  }
 
   function setWeatherUnit(unit) {
     localStorage.setItem('unit', unit);
@@ -68,27 +138,6 @@ window.onload = () => {
 
   getWeatherUnit();
 
-  function getLanguage() {
-    let language = 'en';
-    if (!localStorage.getItem('language')) {
-      setLanguage(language);
-      document.getElementById('en').checked = true;
-      document.getElementById('ua').checked = false;
-    } else {
-      language = localStorage.getItem('language');
-
-      if (language === 'en') {
-        document.getElementById('en').checked = true;
-        document.getElementById('ua').checked = false;
-      }
-      if (language === 'ua') {
-        document.getElementById('en').checked = false;
-        document.getElementById('ua').checked = true;
-      }
-    }
-    return language;
-  }
-
   function switchLanguage(language) {
     setLanguage(language);
     translator.load(language);
@@ -107,10 +156,11 @@ window.onload = () => {
     const tempUnit = document.querySelector('.temp-unit');
     const forecastTemp = document.querySelectorAll('.forecast-temp');
     const cTemp = currentTempContainer.innerHTML;
-    currentTempContainer.innerHTML = `${Math.round((5/9) * (cTemp - 32))}`;
+    currentTempContainer.innerHTML = `${Math.round((5 / 9) * (cTemp - 32))}`;
     Array.from(forecastTemp).map((el) => {
       const fTemp = el.innerHTML;
-      return el.innerHTML = `${Math.round((5/9) * (fTemp - 32))}`;
+      el.innerHTML = `${Math.round((5 / 9) * (fTemp - 32))}`;
+      return el.innerHTML;
     });
     tempUnit.innerHTML = '°C';
     setWeatherUnit('c');
@@ -124,12 +174,13 @@ window.onload = () => {
     const currentTempContainer = document.querySelector('.temp');
     const tempUnit = document.querySelector('.temp-unit');
     const forecastTemp = document.querySelectorAll('.forecast-temp');
-    const temp = weatherGenerator.convertToF();
-    currentTempContainer.innerHTML = `${Math.round(temp)}`;
+    const temp = currentTempContainer.innerHTML;
+    currentTempContainer.innerHTML = `${Math.round((temp * 9) / 5 + 32)}`;
     console.log(forecastTemp);
     Array.from(forecastTemp).map((el) => {
       const fTemp = el.innerHTML;
-      return el.innerHTML = `${Math.round((el.innerHTML * 9) / 5 + 32)}`;
+      el.innerHTML = `${Math.round((fTemp * 9) / 5 + 32)}`;
+      return el.innerHTML;
     });
     tempUnit.innerHTML = '°F';
     setWeatherUnit('f');
@@ -145,7 +196,7 @@ window.onload = () => {
     weatherGenerator.getWeather(url, list, msg, loaderContainer);
     weatherGenerator.getForecast(forecastUrl, forecastList, msg);
     imageGenerator.getKeys(weatherGenerator.config[0]);
-  };
+  }
 
   function getCity(url) {
     fetch(url)
@@ -156,8 +207,8 @@ window.onload = () => {
 
         let filtered = [];
         filtered = array.reduce((el, item) => {
-          if (!el.some((filtItem) => filtItem.components.country_code === item.components.country_code
-            && filtItem.components.state_code === item.components.state_code)) {
+          if (!el.some((filtItem) => filtItem.components.state_code === item.components.state_code
+            && filtItem.components.country_code === item.components.country_code)) {
             el.push(item);
           }
           return el;
@@ -179,7 +230,7 @@ window.onload = () => {
                 ${item.formatted}
               </h2>
             `;
-            li.addEventListener('click', function() {
+            li.addEventListener('click', () => {
               clearSideMenu();
               getCityWeather(item.geometry);
               getCityName(item.geometry);
@@ -189,8 +240,8 @@ window.onload = () => {
           });
         }
       })
-      .catch((error) => {
-        msg.textContent = "Please search for a valid city 😩";
+      .catch(() => {
+        msg.textContent = 'Please search for a valid city 😩';
       });
   }
 
@@ -202,18 +253,18 @@ window.onload = () => {
     getCity(url);
   });
 
-  input.addEventListener('input', function() {
+  input.addEventListener('input', () => {
     if (input.value.length) {
       btnSearch.classList.add('active');
       btnClose.classList.add('visible');
     } else {
-        btnSearch.classList.remove('active');
-        btnClose.classList.remove('visible');
+      btnSearch.classList.remove('active');
+      btnClose.classList.remove('visible');
     }
   });
 
 
-  btnClose.addEventListener('click', function() {
+  btnClose.addEventListener('click', () => {
     input.value = '';
     btnSearch.classList.remove('active');
     btnClose.classList.remove('visible');
@@ -221,13 +272,13 @@ window.onload = () => {
   }, false);
 
 
-  btnChangeImg.addEventListener('click', function() {
+  btnChangeImg.addEventListener('click', () => {
     imageGenerator.getImage(document.querySelector('.main'));
   }, false);
 
-  let radios = document.forms["temperature-form"].elements["temperature"];
-  for(var i = 0, max = radios.length; i < max; i++) {
-    radios[i].addEventListener('click', function() {
+  const radios = document.forms['temperature-form'].elements['temperature'];
+  for (var i = 0, max = radios.length; i < max; i += 1) {
+    radios[i].addEventListener('click', function () {
       if (this.value === 'celsius') {
         switchToCUnits();
       }
@@ -237,9 +288,9 @@ window.onload = () => {
     }, false);
   }
 
-  let languageRadios = document.forms["language-form"].elements["language"];
-  for(var i = 0, max = languageRadios.length; i < max; i++) {
-    languageRadios[i].addEventListener('click', function() {
+  const languageRadios = document.forms['language-form'].elements['language'];
+  for (var i = 0, max = languageRadios.length; i < max; i += 1) {
+    languageRadios[i].addEventListener('click', function () {
       if (this.value === 'en') {
         switchLanguage('en');
       }
@@ -249,24 +300,24 @@ window.onload = () => {
     }, false);
   }
 
-  btnShowMap.addEventListener('click', function() {
+  btnShowMap.addEventListener('click', () => {
     document.querySelector('#mapid').classList.toggle('shown');
 
 
     if (!localStorage.getItem('language')) {
-      btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? `Hide map` : `Show map`;
+      btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? 'Hide map' : 'Show map';
     } else {
       let language = localStorage.getItem('language');
       if (language === 'ua') {
-        btnShowMap.innerHTML = btnShowMap.innerHTML === 'Показати на карті' ? `Сховати карту` : `Показати на карті`;
+        btnShowMap.innerHTML = btnShowMap.innerHTML === 'Показати на карті' ? 'Сховати карту' : 'Показати на карті';
       }
       if (language === 'en') {
-        btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? `Hide map` : `Show map`;
+        btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? 'Hide map' : 'Show map';
       }
     }
   }, false);
 
-  btnMenu.addEventListener('click', function() {
+  btnMenu.addEventListener('click', () => {
     btnMenu.classList.toggle('open');
     document.querySelector('.sidebar').classList.toggle('opened');
     document.querySelector('.main').classList.toggle('minimized');
@@ -277,15 +328,42 @@ window.onload = () => {
   let map = L.map('mapid').setView([0, 0], 2);
   // add the OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-   maxZoom: 19,
-   attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
   }).addTo(map);
   // show the scale bar on the lower left corner
   L.control.scale().addTo(map);
   // show a marker on the map
   // L.marker({lon: 52.237049, lat: 21.017532}).bindPopup('The center of the world').addTo(map);
-  const coordinatesContainer = document.querySelector(".coordinates-details");
-  initMap();
+  const coordinatesContainer = document.querySelector('.coordinates-details');
+  function getUserLocation(position) {
+    console.log('position', position);
+    const pos = {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+    };
+    console.log('opopopopop', pos);
+    map.setZoom(9);
+    map.panTo(new L.LatLng(pos.lat, pos.lng));
+    // get city name
+    getCityName(pos);
+    const coordinatesMarkup = `
+      <span class="coordinates">Latitude: ${pos.lat}</span>
+      <span class="separator">|</span>
+      <span class="coordinates">Longitude: ${pos.lng}</span>
+    `;
+    coordinatesContainer.innerHTML = coordinatesMarkup;
+    getCityWeather(pos);
+  }
+
+  function getLocationError(error) {
+    //  handleLocationError(true, infoWindow, map.getCenter());
+    console.log('location error', error);
+    locationErrorContainer.style.display = 'block';
+    loaderContainer.style.display = 'none';
+    weatherContentContainer.style.display = 'none';
+    // renderMap(0, 0);
+  }
 
   function initMap() {
     if (navigator.geolocation) {
@@ -300,76 +378,23 @@ window.onload = () => {
       loaderContainer.style.display = 'none';
       console.log('location error');
     }
-  };
-
-  function renderMap(lat, lng) {
-    var map = L.map('mapid').setView([lat, lng], 2);
-    // add the OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-    }).addTo(map);
-
-    // show the scale bar on the lower left corner
-    L.control.scale().addTo(map);
-    // show a marker on the map
-    // L.marker({lon: 52.237049, lat: 21.017532}).bindPopup('The center of the world').addTo(map);
-  };
-
-  function getUserLocation(position) {
-    console.log('position', position);
-    const pos = {
-      lat: position.coords.latitude,
-      lng: position.coords.longitude
-    };
-    console.log('opopopopop', pos);
-    map.setZoom(9);
-    map.panTo(new L.LatLng(pos.lat, pos.lng));
-    // get city name
-    getCityName(pos);
-    const coordinatesMarkup = `
-      <span class="coordinates">Latitude: ${pos.lat}</span>
-      <span class="separator">|</span>
-      <span class="coordinates">Longitude: ${pos.lng}</span>
-    `;
-    coordinatesContainer.innerHTML = coordinatesMarkup;
-    getCityWeather(pos);
-  };
-
-  function getLocationError(error) {
-    //  handleLocationError(true, infoWindow, map.getCenter());
-    console.log('location error', error);
-    locationErrorContainer.style.display = 'block';
-    loaderContainer.style.display = 'none';
-    weatherContentContainer.style.display = 'none';
-    //  renderMap(0, 0);
   }
 
-  function getCityName(location) {
-    const lang = getLanguage() === 'ua' ? 'uk' : 'en';
-    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.lat}&longitude=${location.lng}&localityLanguage=${lang}`;
+  initMap();
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        //  return data;
-        cityName.innerHTML = `${data.city}, ${data.countryName}`;
-      })
-      .catch(() => {
-        msg.textContent = 'Please search for a valid city 😩';
-      });
-  }
-
-  function getDate() {
-    const day = new Date().toLocaleString('default', { weekday: 'short', day: 'numeric', month: 'short' });
-    dateContainer.innerHTML = `${day}`;
-  }
-
-  const voiceRecognitionBtn = document.querySelector('.voice-recognition');
-  voiceRecognitionBtn.addEventListener('click', function () {
-    getVoiceCommand();
-  }, false);
+  // function renderMap(lat, lng) {
+  //   var map = L.map('mapid').setView([lat, lng], 2);
+  //   // add the OpenStreetMap tiles
+  //   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  //     maxZoom: 19,
+  //     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+  //   }).addTo(map);
+  //
+  //   // show the scale bar on the lower left corner
+  //   L.control.scale().addTo(map);
+  //  // show a marker on the map
+  //  // L.marker({lon: 52.237049, lat: 21.017532}).bindPopup('The center of the world').addTo(map);
+  // }
 
   function getVoiceCommand() {
     if ('SpeechRecognition' || webkitSpeechRecognition) {
@@ -408,37 +433,10 @@ window.onload = () => {
     }
   }
 
-  function clearSideMenu() {
-    btnMenu.classList.remove('open');
-    document.querySelector('.sidebar').classList.remove('opened');
-    document.querySelector('.main').classList.remove('minimized');
-    input.value = '';
-    cityOptionsList.innerHTML = '';
-    btnSearch.classList.remove('active');
-    btnClose.classList.remove('visible');
-  }
-
-  function translateWeatherLabels(lang) {
-    const feelsLikeLabel = lang === 'en' ? 'Feels like' : 'Відчувається як';
-    const cloudsLabel = lang === 'en' ? 'Clouds': 'Хмарність';
-    const precipLabel = lang === 'en' ? 'Precipitation': 'Опади';
-    const windLabel = lang === 'en' ? 'Wind': 'Вітер';
-    const visibilityLabel = lang === 'en' ? 'Visibility': 'Видимість';
-    const humidityLabel = lang === 'en' ? 'Humidity': 'Вологість';
-    document.querySelector('.label-app-temp').innerHTML = feelsLikeLabel;
-    document.querySelector('.label-clouds').innerHTML = cloudsLabel;
-    document.querySelector('.label-precip').innerHTML = precipLabel;
-    document.querySelector('.label-wind').innerHTML = windLabel;
-    document.querySelector('.label-visibility').innerHTML = visibilityLabel;
-    document.querySelector('.label-humidity').innerHTML = humidityLabel;
-  }
-
-  function setDateTime() {
-    const lang = localStorage.getItem('language') === 'en' ? 'en-GB' : 'uk-UA';
-    const date = new Date().toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short' });
-    const time = new Date().toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
-    dateContainer.innerHTML = `${date} | ${time}`;
-  }
+  const voiceRecognitionBtn = document.querySelector('.voice-recognition');
+  voiceRecognitionBtn.addEventListener('click', () => {
+    getVoiceCommand();
+  }, false);
 
   msg.textContent = '';
   form.reset();

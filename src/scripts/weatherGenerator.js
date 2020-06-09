@@ -17,11 +17,11 @@ export default class {
         imageGenerator.getImage(document.querySelector('.main'));
         const lang = localStorage.getItem('language');
         const feelsLikeLabel = lang === 'en' ? 'Feels like' : 'Відчувається як';
-        const cloudsLabel = lang === 'en' ? 'Clouds': 'Хмарність';
-        const precipLabel = lang === 'en' ? 'Precipitation': 'Опади';
-        const windLabel = lang === 'en' ? 'Wind': 'Вітер';
-        const visibilityLabel = lang === 'en' ? 'Visibility': 'Видимість';
-        const humidityLabel = lang === 'en' ? 'Humidity': 'Вологість';
+        const cloudsLabel = lang === 'en' ? 'Clouds' : 'Хмарність';
+        const precipLabel = lang === 'en' ? 'Precipitation' : 'Опади';
+        const windLabel = lang === 'en' ? 'Wind' : 'Вітер';
+        const visibilityLabel = lang === 'en' ? 'Visibility' : 'Видимість';
+        const humidityLabel = lang === 'en' ? 'Humidity' : 'Вологість';
         console.log('weather data', data);
         const icon = `https://www.weatherbit.io/static/img/icons/${
           data.data[0].weather.icon}.png`;

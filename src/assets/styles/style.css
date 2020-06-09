@@ -246,6 +246,7 @@ color: var(--text_black);
   font-weight: 200;
   color: #333333;
   line-height: 20px;
+  font-size: 16px;
 }
 [type="radio"]:checked + label:before,
 [type="radio"]:not(:checked) + label:before {

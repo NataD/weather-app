@@ -9,10 +9,10 @@ export default class {
 
   getKeys(config) {
     if (config === undefined) {
-      return;
+      return this.keys;
     }
     console.log('in config', config);
-    let k = [];
+    const k = [];
     if (config.pod === 'd') {
       k.push('day');
     }
