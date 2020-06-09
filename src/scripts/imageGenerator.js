@@ -53,18 +53,10 @@ export default class {
     this.url = `https://source.unsplash.com/featured/1600x900/?${parameters}`;
     console.log('parameters in getImage()', parameters);
     fetch('https://source.unsplash.com/1600x900/?city,clouds')
-    // fetch(`https://source.unsplash.com/featured/1600x900/?${parameters}`)
       .then((response) => {
-        console.log('-=-=-=-=-=', response);
-        console.log(response.url);
         if (container) {
           container.style.backgroundImage = `url(${response.url})`;
         }
-        // response.json()
-      })
-      .then((data) => {
-        console.log('DATA in fetch images', data);
-        // testImgContainer.style.backgroundImage = "url('img_tree.png')";
       })
       .catch((error) => {
         console.error('Error:', error);
