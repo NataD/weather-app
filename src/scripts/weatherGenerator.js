@@ -22,7 +22,6 @@ export default class {
         const windLabel = lang === 'en' ? 'Wind' : 'Вітер';
         const visibilityLabel = lang === 'en' ? 'Visibility' : 'Видимість';
         const humidityLabel = lang === 'en' ? 'Humidity' : 'Вологість';
-        console.log('weather data', data);
         const icon = `https://www.weatherbit.io/static/img/icons/${
           data.data[0].weather.icon}.png`;
 
@@ -73,8 +72,7 @@ export default class {
         container.innerHTML = markup;
         loaderContainer.style.display = 'none';
       })
-      .catch((error) => {
-        console.log('ERROR IN getWeather', error);
+      .catch(() => {
         msgContainer.textContent = 'Something went wrong. Please try again later 😩';
       });
   }
@@ -89,9 +87,7 @@ export default class {
           const icon = `https://www.weatherbit.io/static/img/icons/${item.weather.icon}.png`;
           const forecastItem = document.createElement('div');
           forecastItem.classList.add('forecast-item');
-          // toDo add language insteat od default
           const lang = localStorage.getItem('language') === 'en' ? 'en-GB' : 'uk-UA';
-          console.log('lang in weatherGen', lang);
           const day = new Date(item.datetime).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short' });
           const markup = `
             <p class="item-date">${day}</p>
@@ -107,8 +103,7 @@ export default class {
           return this;
         });
       })
-      .catch((error) => {
-        console.log('ERROR IN GET FORECAST', error);
+      .catch(() => {
         msgContainer.textContent = 'Something went wrong 😩';
       });
   }

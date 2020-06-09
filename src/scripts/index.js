@@ -3,8 +3,6 @@ import ImageGenerator from './imageGenerator.js';
 import WeatherGenerator from './weatherGenerator.js';
 
 window.onload = () => {
-  console.log('Hello world');
-
   const apiKey = 'd8c520bfeb8d48c9bbe43303fc1e3e92';
   const openCageApiKey = '059f7622609c40dbb2eb03ea4d95d840';
   const input = document.querySelector('.search-input');
@@ -91,13 +89,10 @@ window.onload = () => {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         const city = data.city.length ? data.city : data.localityInfo.administrative[2].name;
-        //  return data;
         cityName.innerHTML = `${city}, ${data.countryName}`;
       })
-      .catch((error) => {
-        console.log('====', error);
+      .catch(() => {
         msg.textContent = 'Please search for a valid city 😩';
       });
   }
@@ -176,7 +171,6 @@ window.onload = () => {
     const forecastTemp = document.querySelectorAll('.forecast-temp');
     const temp = currentTempContainer.innerHTML;
     currentTempContainer.innerHTML = `${Math.round((temp * 9) / 5 + 32)}`;
-    console.log(forecastTemp);
     Array.from(forecastTemp).map((el) => {
       const fTemp = el.innerHTML;
       el.innerHTML = `${Math.round((fTemp * 9) / 5 + 32)}`;
@@ -189,7 +183,6 @@ window.onload = () => {
   function getCityWeather(geolocation) {
     const lang = getLanguage() === 'ua' ? 'uk' : 'en';
     const unit = getWeatherUnit() === 'f' ? 'I' : 'M';
-    console.log('-=-=-=-=-==-', lang, unit);
     const url = `https://api.weatherbit.io/v2.0/current?lat=${geolocation.lat}&lon=${geolocation.lng}&key=${apiKey}&units=${unit}&lang=${lang}`;
     const forecastUrl = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${geolocation.lat}&lon=${geolocation.lng}&units=${unit}&lang=${lang}&days=3&key=${apiKey}`;
 
@@ -303,7 +296,6 @@ window.onload = () => {
   btnShowMap.addEventListener('click', () => {
     document.querySelector('#mapid').classList.toggle('shown');
 
-
     if (!localStorage.getItem('language')) {
       btnShowMap.innerHTML = btnShowMap.innerHTML === 'Show map' ? 'Hide map' : 'Show map';
     } else {
@@ -324,25 +316,19 @@ window.onload = () => {
   }, false);
 
   // initialize Leaflet
-  // var map = L.map('mapid').setView([52.237049, 21.017532], 8);
   let map = L.map('mapid').setView([0, 0], 2);
-  // add the OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
   }).addTo(map);
-  // show the scale bar on the lower left corner
   L.control.scale().addTo(map);
-  // show a marker on the map
   // L.marker({lon: 52.237049, lat: 21.017532}).bindPopup('The center of the world').addTo(map);
   const coordinatesContainer = document.querySelector('.coordinates-details');
   function getUserLocation(position) {
-    console.log('position', position);
     const pos = {
       lat: position.coords.latitude,
       lng: position.coords.longitude,
     };
-    console.log('opopopopop', pos);
     map.setZoom(9);
     map.panTo(new L.LatLng(pos.lat, pos.lng));
     // get city name
@@ -356,9 +342,7 @@ window.onload = () => {
     getCityWeather(pos);
   }
 
-  function getLocationError(error) {
-    //  handleLocationError(true, infoWindow, map.getCenter());
-    console.log('location error', error);
+  function getLocationError() {
     locationErrorContainer.style.display = 'block';
     loaderContainer.style.display = 'none';
     weatherContentContainer.style.display = 'none';
@@ -373,7 +357,6 @@ window.onload = () => {
       weatherContentContainer.style.display = 'block';
     } else {
     // Browser doesn't support Geolocation
-    //  handleLocationError(false, infoWindow, map.getCenter());
       locationErrorContainer.style.display = 'block';
       loaderContainer.style.display = 'none';
       console.log('location error');
@@ -398,7 +381,6 @@ window.onload = () => {
 
   function getVoiceCommand() {
     if ('SpeechRecognition' || webkitSpeechRecognition) {
-      console.log('Speech recognition supported 😊');
       var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
       var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
       var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
@@ -411,11 +393,6 @@ window.onload = () => {
 
       recognition.onresult = function (event) {
         const transcript = event.results[0][0].transcript;
-        console.log(event.results);
-        const city = transcript.split(' ').slice(2).join(' ');
-        console.log('CITY in voice recognition', city);
-        // getCity(city);
-        console.log(transcript);
         input.value = transcript;
         getCity(`https://api.opencagedata.com/geocode/v1/json?q=${transcript}&key=059f7622609c40dbb2eb03ea4d95d840`);
       };
@@ -423,13 +400,10 @@ window.onload = () => {
       recognition.onnomatch = function () {
         console.log('I didnt recognize the word');
       };
-      // start recognition
       recognition.start();
       recognition.addEventListener('end', recognition.start);
-      // code to handle recognition here
     } else {
       console.log('Speech recognition not supported 😢');
-      // code to handle error
     }
   }
 
